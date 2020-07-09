@@ -82,6 +82,12 @@ if ( !empty( $_POST[ 'save_options' ] ) && ( check_admin_referer( 'footnotes-non
 			</tr>
 
 			<tr>
+			<th scope="row"><?php echo __( ucwords( 'HTML tooltips' ), 'footnotes-made-easy' ); ?></th>
+			<td><label for="html_tooltips"><input type="checkbox" name="html_tooltips" id="html_tooltips" <?php checked( $this->current_options[ 'html_tooltips' ], true ); ?>/>
+			<?php _e( 'Allow HTML in tooltips', 'footnotes-made-easy' ); ?></label></td>
+			</tr>
+
+			<tr>
 			<th scope="row"><?php echo __( ucwords( 'combine notes' ), 'footnotes-made-easy' ); ?></th>
 			<td><label for="combine_identical_notes"><input type="checkbox" name="combine_identical_notes" id="combine_identical_notes" <?php checked( $this->current_options[ 'combine_identical_notes' ], true ); ?>/>
 			<?php _e( 'Combine identical footnotes', 'footnotes-made-easy' ); ?></label></td>

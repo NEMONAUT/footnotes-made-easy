@@ -1,12 +1,14 @@
 <?php
 /*
-Plugin Name: Footnotes Made Easy
-Plugin URI: https://github.com/dartiss/footnotes-made-easy
+Plugin Name: Footnotes Made Easy - FQF
+Plugin URI: https://github.com/NEMONAUT/footnotes-made-easy
+Forked From: https://github.com/dartiss/footnotes-made-easy
 Description: Allows post authors to easily add and manage footnotes in posts.
 Version: 1.0.2
-Author: David Artiss
-Author URI: https://artiss.blog
-Text Domain: footnotes-made-easy
+Author: Josh Niemeyer
+Original Author: David Artiss
+Original Author URI: https://artiss.blog
+Text Domain: fqf-footnotes-made-easy
 */
 
 /**
@@ -17,6 +19,8 @@ Text Domain: footnotes-made-easy
 * @package	footnotes-made-easy
 * @since	1.0
 */
+
+namespace FirstQuarterFinance;
 
 // Instantiate the class
 
@@ -29,7 +33,7 @@ class swas_wp_footnotes {
 	private $current_options;
 	private $default_options;
 
-	const OPTIONS_VERSION = "5"; // Incremented when the options array changes
+	const OPTIONS_VERSION = "6"; // Incremented when the options array changes
 
 	// Constructor
 
@@ -73,6 +77,7 @@ class swas_wp_footnotes {
 									  'footnotes_open' => ' ((',
 									  'footnotes_close' => '))',
 									  'pretty_tooltips' => false,
+									  'html_tooltips' => false,
 									  'version' => self::OPTIONS_VERSION
 									  );
 
@@ -136,6 +141,7 @@ class swas_wp_footnotes {
 			$footnotes_options[ 'footnotes_close' ] = sanitize_text_field( $post_array[ 'footnotes_close' ] );
 
 			$footnotes_options[ 'pretty_tooltips' ] = ( array_key_exists( 'pretty_tooltips', $post_array ) ) ? true : false;
+			$footnotes_options[ 'html_tooltips' ] = ( array_key_exists( 'html_tooltips', $post_array ) ) ? true : false;
 
 			update_option( 'swas_footnote_options', $footnotes_options );
 			$this->current_options = $footnotes_options;
@@ -260,8 +266,8 @@ class swas_wp_footnotes {
 			$id_id = "identifier_" . $key . "_" . $post->ID;
 			$id_num = ( $style === 'decimal' ) ? $value[ 'use_footnote' ] + $start_number : $this->convert_num( $value[ 'use_footnote' ] + $start_number, $style, count( $footnotes ) );
 			$id_href = ( ( $use_full_link ) ? get_permalink( $post->ID ) : '' ) . "#footnote_" . $value[ 'use_footnote' ] . "_" . $post->ID;
-			$id_title = str_replace( '"', "&quot;", htmlentities( html_entity_decode( wp_strip_all_tags( $value[ 'text' ] ), ENT_QUOTES, 'UTF-8' ), ENT_QUOTES, 'UTF-8' ) );
-			$id_replace = $this->current_options[ 'pre_identifier' ] . '<a href="' . $id_href . '" id="' . $id_id . '" class="footnote-link footnote-identifier-link" title="' . $id_title . '">' . $this->current_options[ 'inner_pre_identifier' ] . $id_num . $this->current_options[ 'inner_post_identifier' ] . '</a>' . $this->current_options[ 'post_identifier' ];
+			$id_title = $this->current_options[ 'html_tooltips' ] ? $value[ 'text' ] : str_replace( '"', "&quot;", htmlentities( html_entity_decode( wp_strip_all_tags( $value[ 'text' ] ), ENT_QUOTES, 'UTF-8' ), ENT_QUOTES, 'UTF-8' ) );
+			$id_replace = $this->current_options[ 'pre_identifier' ] . '<a href="' . $id_href . '" id="' . $id_id . '" class="footnote-link footnote-identifier-link" title=\'' . $id_title . '\' data-toggle="tooltip" data-html="true">' . $this->current_options[ 'inner_pre_identifier' ] . $id_num . $this->current_options[ 'inner_post_identifier' ] . '</a>' . $this->current_options[ 'post_identifier' ];
 			if ( $this->current_options[ 'superscript' ] ) $id_replace = '<sup>' . $id_replace . '</sup>';
 			if ( $display ) $data = substr_replace( $data, $id_replace, strpos( $data, $value[ 0 ] ), strlen( $value[ 0 ] ) );
 			else $data = substr_replace( $data, '', strpos( $data,$value[ 0 ] ),strlen( $value[ 0 ] ) );
@@ -574,7 +580,7 @@ class swas_wp_footnotes {
 
 		wp_enqueue_script(
 							'wp-footnotes-tooltips',
-							plugins_url( 'js/tooltips.min.js' , __FILE__ ),
+							plugins_url( 'js/tooltips.js' , __FILE__ ),
 							array(
 									'jquery',
 									'jquery-ui-widget',
